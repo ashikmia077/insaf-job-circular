@@ -21,6 +21,7 @@ CREATE OR REPLACE FUNCTION public.has_admin_role(allowed_roles public.admin_role
 RETURNS BOOLEAN
 LANGUAGE sql
 SECURITY DEFINER
+SET search_path = public, pg_temp
 STABLE
 AS $$
   SELECT EXISTS (
@@ -79,6 +80,51 @@ CREATE POLICY "verifiers_and_super_admins_update_jobs"
   TO authenticated
   USING (
     public.has_admin_role(ARRAY['super_admin', 'verifier_admin', 'editor_admin']::public.admin_role[])
+  )
+  WITH CHECK (
+    public.has_admin_role(ARRAY['super_admin', 'verifier_admin']::public.admin_role[])
+    OR (
+      public.has_admin_role(ARRAY['editor_admin']::public.admin_role[])
+      AND verification_status <> 'published'
+    )
+  );
+
+CREATE POLICY "admins_read_own_or_super_admin_read_all_profiles"
+  ON public.admin_profiles FOR SELECT
+  TO authenticated
+  USING (
+    id = auth.uid()
+    OR public.has_admin_role(ARRAY['super_admin']::public.admin_role[])
+  );
+
+CREATE POLICY "super_admin_manage_admin_profiles"
+  ON public.admin_profiles FOR ALL
+  TO authenticated
+  USING (
+    public.has_admin_role(ARRAY['super_admin']::public.admin_role[])
+  )
+  WITH CHECK (
+    public.has_admin_role(ARRAY['super_admin']::public.admin_role[])
+  );
+
+CREATE POLICY "admins_manage_job_notices"
+  ON public.job_notices FOR ALL
+  TO authenticated
+  USING (
+    public.has_admin_role(ARRAY['super_admin', 'verifier_admin', 'editor_admin']::public.admin_role[])
+  )
+  WITH CHECK (
+    public.has_admin_role(ARRAY['super_admin', 'verifier_admin', 'editor_admin']::public.admin_role[])
+  );
+
+CREATE POLICY "super_admin_manage_job_sources"
+  ON public.job_sources FOR ALL
+  TO authenticated
+  USING (
+    public.has_admin_role(ARRAY['super_admin', 'verifier_admin']::public.admin_role[])
+  )
+  WITH CHECK (
+    public.has_admin_role(ARRAY['super_admin']::public.admin_role[])
   );
 
 CREATE POLICY "ad_managers_manage_insaf_campaigns"
