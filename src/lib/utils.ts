@@ -29,3 +29,16 @@ export function getRemainingDeadlineDays(deadlineIso: string): number {
   const nowMs = Date.now();
   return Math.ceil((deadlineMs - nowMs) / (1000 * 60 * 60 * 24));
 }
+
+/**
+ * Generates a URL-safe slug from an English title.
+ */
+export function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}

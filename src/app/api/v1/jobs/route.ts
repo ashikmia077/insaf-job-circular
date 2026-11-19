@@ -6,11 +6,17 @@ import {
   createJobCircularSchema,
   jobFilterQuerySchema,
 } from "@/features/jobs";
+import { isSupabaseConnectionConfigured } from "@/lib/supabase/middleware";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentAdminContext } from "@/lib/supabase/session";
+import { AuthorizationError } from "@/lib/security/rbac";
+import { SupabaseDatabaseRepository } from "@/services/database/supabase.repository";
+import { JobsService } from "@/services/jobs/jobs.service";
 
 /**
  * GET /api/v1/jobs
- * Phase 1 Architectural Route Handler: validates query parameters via Zod,
- * enforces rate-limiting, and returns standardized pagination envelope.
+ * Validates query parameters via Zod, enforces rate-limiting,
+ * and queries published jobs via `JobsService` when Supabase is configured.
  */
 export async function GET(request: NextRequest) {
   const env = getServerEnv();
@@ -40,28 +46,58 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  return apiSuccess(
-    {
-      filters: parsed.data,
-      items: [],
-      notice:
-        "Phase 1 architecture initialized. Live Supabase query execution will be connected in Phase 2 after schema approval.",
-    },
-    {
-      pagination: {
-        page: parsed.data.page,
-        pageSize: parsed.data.pageSize,
-        totalItems: 0,
-        totalPages: 0,
+  if (!isSupabaseConnectionConfigured()) {
+    return apiSuccess(
+      {
+        filters: parsed.data,
+        items: [],
+        supabaseConfigured: false,
       },
-      rateLimit,
-    }
-  );
+      {
+        pagination: {
+          page: parsed.data.page,
+          pageSize: parsed.data.pageSize,
+          totalItems: 0,
+          totalPages: 0,
+        },
+        rateLimit,
+      }
+    );
+  }
+
+  try {
+    const supabase = createSupabaseServerClient();
+    const service = new JobsService(new SupabaseDatabaseRepository(supabase));
+    const items = await service.listPublishedJobs(parsed.data.category);
+    return apiSuccess(
+      {
+        filters: parsed.data,
+        items,
+        supabaseConfigured: true,
+      },
+      {
+        pagination: {
+          page: parsed.data.page,
+          pageSize: parsed.data.pageSize,
+          totalItems: items.length,
+          totalPages: Math.ceil(items.length / parsed.data.pageSize),
+        },
+        rateLimit,
+      }
+    );
+  } catch (err) {
+    return apiError(
+      "JOBS_FETCH_FAILED",
+      err instanceof Error ? err.message : "Failed to fetch jobs.",
+      { status: 500, rateLimit }
+    );
+  }
 }
 
 /**
  * POST /api/v1/jobs
- * Validates payload with Zod and enforces administrative RBAC preconditions.
+ * Validates payload with Zod, enforces administrative RBAC (`jobs:create`),
+ * creates a draft in `pending_verification`, and logs an immutable audit record.
  */
 export async function POST(request: NextRequest) {
   const env = getServerEnv();
@@ -99,9 +135,31 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  return apiError(
-    "PHASE_1_NOT_IMPLEMENTED",
-    "Job persistence requires Phase 2 Supabase Auth & RLS integration approval.",
-    { status: 501, rateLimit }
-  );
+  if (!isSupabaseConnectionConfigured()) {
+    return apiError(
+      "SUPABASE_NOT_CONFIGURED",
+      "Supabase credentials are not configured in .env.local.",
+      { status: 503, rateLimit }
+    );
+  }
+
+  try {
+    const actor = await getCurrentAdminContext();
+    const supabase = createSupabaseServerClient();
+    const service = new JobsService(new SupabaseDatabaseRepository(supabase));
+    const created = await service.createJobDraft(actor, parsed.data);
+    return apiSuccess({ job: created }, { status: 201, rateLimit });
+  } catch (err) {
+    if (err instanceof AuthorizationError) {
+      return apiError(err.code, err.message, {
+        status: err.statusCode,
+        rateLimit,
+      });
+    }
+    return apiError(
+      "JOB_CREATE_FAILED",
+      err instanceof Error ? err.message : "Failed to create job circular.",
+      { status: 400, rateLimit }
+    );
+  }
 }

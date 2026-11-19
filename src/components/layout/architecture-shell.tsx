@@ -22,15 +22,15 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/config/site.config";
-import { ADMIN_ROLES } from "@/config/permissions.config";
+import { CANONICAL_ADMIN_ROLES } from "@/config/permissions.config";
 
 const architecturePillars = [
   {
     icon: ShieldCheck,
     title: "Multi-Admin RBAC & Audit Trail",
     description:
-      "5 granular admin roles (super_admin, verifier_admin, editor_admin, ad_manager, analyst) enforced via Supabase RLS and immutable audit_logs.",
-    status: "Schema & Guards Ready",
+      "3 canonical governance roles (SUPER_ADMIN, EDITOR_ADMIN, VERIFICATION_ADMIN) enforced via Server Services, PostgreSQL RLS, and append-only audit_logs.",
+    status: "Phase 2 Active",
   },
   {
     icon: Cpu,
@@ -44,7 +44,7 @@ const architecturePillars = [
     title: "Official Notice Verification",
     description:
       "PDF/image notice management in Supabase Storage with SHA-256 integrity checks and deterministic auto-publish eligibility rules.",
-    status: "Policy Engine Ready",
+    status: "Verification Service Ready",
   },
   {
     icon: BellRing,
@@ -55,10 +55,10 @@ const architecturePillars = [
   },
   {
     icon: Database,
-    title: "Supabase PostgreSQL + Storage",
+    title: "Supabase 20-Table Schema + RLS",
     description:
-      "Normalized schema for organizations, jobs, notices, verification logs, analytics events, and RLS policies in database/migrations.",
-    status: "3 SQL Migrations Ready",
+      "Complete 20-table relational model (jobs, categories, organizations, sources, notices, verifications, updates, profiles, audit_logs) with 5 SQL migrations.",
+    status: "5 SQL Migrations Ready",
   },
   {
     icon: Megaphone,
@@ -80,7 +80,9 @@ export function ArchitectureShell() {
           className="space-y-4"
         >
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="default">Phase 1 — Architecture & Initialization</Badge>
+            <Badge variant="default">
+              Phase 2 — Database, Auth & Multi-Admin Governance
+            </Badge>
             <Badge variant="secondary">Next.js 14 + TypeScript</Badge>
             <Badge variant="outline">Branch: dev</Badge>
           </div>
@@ -91,9 +93,9 @@ export function ArchitectureShell() {
             </span>
           </h1>
           <p className="max-w-3xl text-muted-foreground text-base md:text-lg">
-            Production architecture foundation initialized. Waiting for Phase 1
-            architecture review and approval before building complete UI views,
-            live database bindings, and worker runtime loops.
+            Phase 2 Database Foundation (20 tables, 5 migrations, immutable
+            audit triggers), Supabase Authentication Middleware, RBAC
+            Enforcement, and 7 Modular Domain Services initialized.
           </p>
         </motion.section>
 
@@ -154,7 +156,7 @@ export function ArchitectureShell() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
-              {ADMIN_ROLES.map((role) => (
+              {CANONICAL_ADMIN_ROLES.map((role) => (
                 <Badge key={role} variant="outline" className="font-mono">
                   {role}
                 </Badge>

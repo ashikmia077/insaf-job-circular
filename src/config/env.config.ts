@@ -51,6 +51,7 @@ const serverEnvSchema = clientEnvSchema.extend({
   AI_EXTRACTION_PROVIDER: z.string().default("gemini"),
   AI_EXTRACTION_API_KEY: optionalNonEmptyString,
   AI_EXTRACTION_MODEL: z.string().default("gemini-2.5-flash"),
+  RATE_LIMIT_AUTH_RPM: z.coerce.number().int().positive().default(10),
   RATE_LIMIT_PUBLIC_RPM: z.coerce.number().int().positive().default(60),
   RATE_LIMIT_ADMIN_RPM: z.coerce.number().int().positive().default(120),
   AUDIT_LOG_RETENTION_DAYS: z.coerce.number().int().positive().default(365),

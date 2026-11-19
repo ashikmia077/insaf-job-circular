@@ -18,12 +18,13 @@ This roadmap breaks down the engineering lifecycle of **Insaf Job Circular** int
 
 ---
 
-## Phase 2 — Database Provisioning, Authentication & Multi-Admin Governance *(Pending Approval)*
-- [ ] Connect Supabase project and apply SQL migrations `0001`–`0003`.
-- [ ] Configure Supabase Storage buckets (`job-notices`, `organization-logos`, `insaf-ad-creatives`) and storage RLS policies.
-- [ ] Implement Supabase Auth sign-in flow and Next.js middleware session refresh.
-- [ ] Build Role-Based Admin Guards and live `public.audit_logs` persistence.
-- [ ] Build Super Admin staff management interface (invite admins, assign/revoke roles).
+## Phase 2 — Database Provisioning, Authentication & Multi-Admin Governance ✅ *(Current — Completed)*
+- [x] Complete 20-table PostgreSQL relational schema (`database/migrations/0004_phase2_schema_extensions_and_tables.sql`).
+- [x] Database-level RLS policies, `SUPER_ADMIN` / `EDITOR_ADMIN` / `VERIFICATION_ADMIN` role normalization, `EDITOR_ADMIN` publish block trigger, and immutable `audit_logs` trigger (`database/migrations/0005_phase2_rls_triggers_and_audit_protection.sql`).
+- [x] Supabase browser, server, admin, and middleware clients + route protection (`src/middleware.ts`, `src/lib/supabase/*`).
+- [x] Admin authentication API & pages (`/admin/login`, `/admin/reset-password`, `/admin/update-password`, `/admin`) with authentication rate limiting (`RATE_LIMIT_AUTH_RPM`).
+- [x] 7 Modular Domain Services (`JobsService`, `CategoriesService`, `OrganizationsService`, `NoticesService`, `SourcesService`, `VerificationService`, `AdminsService`) with automatic `previous_state` / `new_state` audit logging.
+- [x] Automated Vitest + embedded PostgreSQL (`@electric-sql/pglite`) test suite (`tests/phase2.governance.test.ts`).
 
 ---
 
