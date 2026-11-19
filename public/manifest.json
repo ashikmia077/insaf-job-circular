@@ -1,0 +1,21 @@
+{
+  "name": "Insaf Job Circular — Bangladesh Verified Job Portal",
+  "short_name": "Insaf Jobs",
+  "description": "Verified Government, Bank, Non-Cadre, Private, and NGO Job Circulars in Bangladesh with Official Notice PDFs & Deadline Alerts.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#059669",
+  "orientation": "portrait-primary",
+  "lang": "bn-BD",
+  "dir": "ltr",
+  "categories": ["business", "education", "news", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

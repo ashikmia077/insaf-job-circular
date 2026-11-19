@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "insaf-worker"
+version = "0.1.0"
+description = "Background automation, compliant source collector, AI notice extractor, and deduplication worker for Insaf Job Circular."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "redis>=5.2.0",
+  "httpx>=0.28.0",
+  "pydantic>=2.10.0",
+  "pydantic-settings>=2.6.0",
+  "python-dotenv>=1.0.1",
+  "pypdf>=5.1.0",
+]
