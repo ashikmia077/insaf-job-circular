@@ -1,0 +1,19 @@
+{
+  "name": "chakribd",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Personal ad-free Bangladeshi job circular aggregator",
+  "scripts": {
+    "scrape": "node scripts/scrape.mjs",
+    "embed": "node scripts/embed-seed.mjs",
+    "update": "node scripts/scrape.mjs && node scripts/embed-seed.mjs",
+    "dev": "npx --yes serve . -l 5173"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cheerio": "1.0.0"
+  }
+}
