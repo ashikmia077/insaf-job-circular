@@ -10,6 +10,7 @@
   --radius:20px; --radius-sm:13px; --bangla:"Noto Sans Bengali","SolaimanLipi","Kalpurush","Hind Siliguri",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 *{box-sizing:border-box}
+[hidden]{display:none !important;}
 html{scroll-behavior:smooth;scroll-padding-top:96px}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--bangla);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body.modal-open{overflow:hidden}
